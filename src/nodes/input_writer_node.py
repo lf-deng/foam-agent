@@ -14,6 +14,7 @@ INITIAL_WRITE_SYSTEM_PROMPT = (
     "Before finalizing the output, ensure:\n"
     "- All necessary fields exist (e.g., if `nu` is defined in `constant/transportProperties`, it must be used correctly in `0/U`).\n"
     "- Cross-check field names between different files to avoid mismatches.\n"
+    "- Ensure all parameters match user's requirements exactly.\n"
     "- Ensure units and dimensions are correct** for all physical variables.\n"
     f"- Ensure case solver settings are consistent with the user's requirements. Available solvers are: {{case_solver}}.\n"
     "Provide only the code—no explanations, comments, or additional text."

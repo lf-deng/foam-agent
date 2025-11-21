@@ -3,6 +3,7 @@ import subprocess
 import sys
 import argparse
 import shlex
+from dotenv import load_dotenv
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Benchmark Workflow Interface")
@@ -63,11 +64,13 @@ def run_command(command_str):
 def main():
     args = parse_args()
     print(args)
-
+    #读取.env
+    load_dotenv()
     # Set environment variables
     WM_PROJECT_DIR = args.openfoam_path
     # Check if OPENAI_API_KEY is available in the environment
     openai_api_key = os.getenv("OPENAI_API_KEY")
+    #openai_api_key = "sk-SvrtpLWyyrBDQ1Ik5ZgIlqdVB1brdUpEQDFq2YLdgih4N9Rj"
     if not openai_api_key:
         print("Error: OPENAI_API_KEY is not set in the environment.")
         sys.exit(1)

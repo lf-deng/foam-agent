@@ -6,7 +6,7 @@ from pathlib import Path
 from langchain_community.vectorstores import FAISS
 from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_core.documents import Document
-
+from langchain_huggingface import HuggingFaceEmbeddings
 # Function to extract specific fields from text
 def extract_field(field_name: str, text: str) -> str:
     """Extracts the specified field from the given text."""
@@ -81,7 +81,8 @@ def main():
         ))
 
     # Step 4: Compute embeddings and store them in FAISS
-    embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+    #embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+    embedding_model = HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b")
     vectordb = FAISS.from_documents(documents, embedding_model)
 
     # Step 5: Save FAISS index locally

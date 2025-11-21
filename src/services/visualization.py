@@ -32,6 +32,14 @@ def generate_pyvista_script(llm, case_dir: str, foam_file: str, user_requirement
 
 def run_pyvista_script(case_dir: str, script: str, filename: str = "visualization.py") -> Tuple[bool, str, List[str]]:
     script_path = os.path.join(case_dir, filename)
+    #检查script开头是否是```python,末尾是否是```,若是，则删去
+    if script.startswith("```python"):
+        script = script[len("```python"):].lstrip()
+    #如果有换行,还要删除换行
+    if script.endswith("\n"):
+        script = script[:-1]
+    if script.endswith("```"):
+        script = script[:-len("```")].rstrip()
     save_file(script_path, script)
     try:
         result = subprocess.run([sys.executable, script_path], cwd=case_dir, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

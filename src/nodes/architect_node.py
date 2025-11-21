@@ -76,7 +76,7 @@ def architect_node(state):
     allrun_reference = allrun_reference
     
     save_file(case_path, f"{faiss_detailed}\n\n\n{allrun_reference}")
-        
+    save_file(os.path.join(case_dir, "user_requirement.txt"), user_requirement)
 
     # Step 4: Break down into subtasks (service)
     subtasks = decompose_to_subtasks(user_requirement, dir_structure, dir_counts_str, state["llm_service"])

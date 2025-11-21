@@ -3,7 +3,7 @@ from models import GenerateFileIn, GenerateFileOut
 from utils import save_file, parse_context
 
 
-def generate_file_content(inp: GenerateFileIn, llm, case_dir: str, tutorial_reference: str, case_solver: str) -> GenerateFileOut:
+def generate_file_content(inp: GenerateFileIn, llm, case_dir: str, tutorial_reference: str, case_solver: str, user_requirement: str) -> GenerateFileOut:
     """Generate a single OpenFOAM file content and optionally write it.
 
     This wraps the initial-write logic in a stateless, file-focused function.
@@ -22,6 +22,7 @@ def generate_file_content(inp: GenerateFileIn, llm, case_dir: str, tutorial_refe
     )
     user_prompt = (
         f"<similar_case_reference>{tutorial_reference}</similar_case_reference>\n"
+        f"<user's_requirement>{user_requirement}</user's_requirement>\n"
         f"Generate {inp.folder}/{inp.file} consistent with the reference."
     )
     response = llm.invoke(user_prompt, sys_prompt)

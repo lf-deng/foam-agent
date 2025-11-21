@@ -3,6 +3,7 @@ import re
 import subprocess
 import os
 from typing import Optional, Any, Type, TypedDict, List
+from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 from langchain.chat_models import init_chat_model
 from langchain_community.vectorstores import FAISS
@@ -10,6 +11,8 @@ from langchain_openai.embeddings import OpenAIEmbeddings
 from langchain_aws import ChatBedrock, ChatBedrockConverse
 from langchain_anthropic import ChatAnthropic
 from pathlib import Path
+
+from sklearn import base
 import tracking_aws
 import requests
 import time
@@ -18,17 +21,25 @@ from botocore.exceptions import ClientError
 import shutil
 from config import Config
 from langchain_ollama import ChatOllama
+from langchain_huggingface import HuggingFaceEmbeddings
 
 # Global dictionary to store loaded FAISS databases
 FAISS_DB_CACHE = {}
 DATABASE_DIR = f"{Path(__file__).resolve().parent.parent}/database/faiss"
-
+#embedding_model = HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b")
 FAISS_DB_CACHE = {
-    "openfoam_allrun_scripts": FAISS.load_local(f"{DATABASE_DIR}/openfoam_allrun_scripts", OpenAIEmbeddings(model="text-embedding-3-small"), allow_dangerous_deserialization=True),
-    "openfoam_tutorials_structure": FAISS.load_local(f"{DATABASE_DIR}/openfoam_tutorials_structure", OpenAIEmbeddings(model="text-embedding-3-small"), allow_dangerous_deserialization=True),
-    "openfoam_tutorials_details": FAISS.load_local(f"{DATABASE_DIR}/openfoam_tutorials_details", OpenAIEmbeddings(model="text-embedding-3-small"), allow_dangerous_deserialization=True),
-    "openfoam_command_help": FAISS.load_local(f"{DATABASE_DIR}/openfoam_command_help", OpenAIEmbeddings(model="text-embedding-3-small"), allow_dangerous_deserialization=True)
+    "openfoam_allrun_scripts": FAISS.load_local(f"{DATABASE_DIR}/openfoam_allrun_scripts", HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b"), allow_dangerous_deserialization=True),
+    "openfoam_tutorials_structure": FAISS.load_local(f"{DATABASE_DIR}/openfoam_tutorials_structure", HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b"), allow_dangerous_deserialization=True),
+    "openfoam_tutorials_details": FAISS.load_local(f"{DATABASE_DIR}/openfoam_tutorials_details", HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b"), allow_dangerous_deserialization=True),
+    "openfoam_command_help": FAISS.load_local(f"{DATABASE_DIR}/openfoam_command_help", HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b"), allow_dangerous_deserialization=True)
 }
+
+# FAISS_DB_CACHE = {
+#     "openfoam_allrun_scripts": FAISS.load_local(f"{DATABASE_DIR}/openfoam_allrun_scripts", HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b"), allow_dangerous_deserialization=True),
+#     "openfoam_tutorials_structure": FAISS.load_local(f"{DATABASE_DIR}/openfoam_tutorials_structure", HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b"), allow_dangerous_deserialization=True),
+#     "openfoam_tutorials_details": FAISS.load_local(f"{DATABASE_DIR}/openfoam_tutorials_details", HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b"), allow_dangerous_deserialization=True),
+#     "openfoam_command_help": FAISS.load_local(f"{DATABASE_DIR}/openfoam_command_help", HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b"), allow_dangerous_deserialization=True)
+# }
 
 class FoamfilePydantic(BaseModel):
     file_name: str = Field(description="Name of the OpenFOAM input file")
@@ -74,7 +85,7 @@ class LLMService:
             self.llm = init_chat_model(
                 self.model_version, 
                 model_provider=self.model_provider, 
-                temperature=self.temperature
+                temperature=self.temperature,
             )
         elif self.model_provider.lower() == "ollama":
             try:
@@ -132,7 +143,7 @@ class LLMService:
             try:
                 if pydantic_obj:
                     structured_llm = self.llm.with_structured_output(pydantic_obj)
-                    response = structured_llm.invoke(messages)
+                    response = structured_llm.invoke(messages, extra_body={"enable_thinking": False})
                 else:
                     if self.model_version.startswith("deepseek"):
                         structured_llm = self.llm.with_structured_output(ResponseWithThinkPydantic)
@@ -141,7 +152,7 @@ class LLMService:
                         # Extract the resposne without the think
                         response = response.response
                     else:
-                        response = self.llm.invoke(messages)
+                        response = self.llm.invoke(messages, extra_body={"enable_thinking": False})
                         response = response.content
 
                 # Calculate completion tokens

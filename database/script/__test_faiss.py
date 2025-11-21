@@ -2,7 +2,7 @@ from langchain_community.vectorstores import FAISS
 import argparse
 from pathlib import Path
 from langchain_community.embeddings.openai import OpenAIEmbeddings
-
+from langchain_huggingface import HuggingFaceEmbeddings
 # Step 1: Parse command-line arguments
 parser = argparse.ArgumentParser(description="Process OpenFOAM case data and store embeddings in FAISS.")
 parser.add_argument("--db_name", type=str, required=True, help="Name of the FAISS database to retrieve from")
@@ -18,7 +18,8 @@ database_path = args.db_path  # Get the database path from arguments
 persist_directory = f"{database_path}/faiss/{args.db_name}"
 
 # Step 2: Load the FAISS database
-embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+#embedding_model = OpenAIEmbeddings(model="text-embedding-3-small")
+embedding_model = HuggingFaceEmbeddings(model_name="/home/ppkdczb/Foam_agent_path/Embedding_Models/qwen3-embedding-0.6b")
 vectordb = FAISS.load_local(persist_directory, embedding_model, allow_dangerous_deserialization=True)
 
 # Step 3: Retrieve all stored documents

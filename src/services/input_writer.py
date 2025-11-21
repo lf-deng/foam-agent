@@ -29,7 +29,7 @@ def initial_write(llm, case_dir: str, subtasks: List[Dict], user_requirement: st
         dir_structure[folder_name].append(file_name)
 
         inp = type("GenIn", (), {"file": file_name, "folder": folder_name, "write": True, "overwrite": True})
-        out = generate_file_content(inp, llm, case_dir, tutorial_reference, case_solver)
+        out = generate_file_content(inp, llm, case_dir, tutorial_reference, case_solver, user_requirement)
         written_files.append(FoamfilePydantic(file_name=file_name, folder_name=folder_name, content=out.content))
 
     foamfiles = FoamPydantic(list_foamfile=written_files)

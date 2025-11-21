@@ -137,7 +137,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output_dir",
         type=str,
-        default="",
+        default=f"{Path(__file__).parent.parent}/output/tmp_workflow",
         help="Output directory for the workflow.",
     )
     parser.add_argument(
@@ -147,6 +147,7 @@ if __name__ == "__main__":
         help="Path to custom mesh file (e.g., .msh, .stl, .obj). If not provided, no custom mesh will be used.",
     )
     
+    
     args = parser.parse_args()
     print(f"args: {args}")
     
@@ -154,6 +155,7 @@ if __name__ == "__main__":
     config = Config()
     if args.output_dir != "":
         config.case_dir = args.output_dir
+    
     
     with open(args.prompt_path, 'r') as f:
         user_requirement = f.read()
