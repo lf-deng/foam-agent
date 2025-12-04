@@ -149,7 +149,7 @@ class LLMService:
                     if self.model_version.startswith("deepseek"):
                         structured_llm = self.llm.with_structured_output(ResponseWithThinkPydantic)
                         response = structured_llm.invoke(messages)
-
+                        print(response)
                         # Extract the resposne without the think
                         response = response.response
                     else:
