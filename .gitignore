@@ -1,4 +1,6 @@
+demo/
 OpenFOAM-10/
+
 
 # Project
 *.pkl
